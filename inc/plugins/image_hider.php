@@ -102,7 +102,6 @@ class ImageHider {
 
             $cache = array();
             ImageHider::clear_img($page, $urls, $cache);
-            ImageHider::clear_bb($page, $urls, $cache);
             ImageHider::clear_others($page, $urls, $cache);
         }
     }
@@ -138,6 +137,8 @@ class ImageHider {
             // check if local images are included
             if(ImageHider::starts_with($src, "images/")) {
                 $matched = true;
+            } else if(preg_match("/(http:)/im", $src)) {
+                $matched = false;
             }
 
             if(!$matched) {
@@ -145,41 +146,6 @@ class ImageHider {
 
                 $replacement = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_replacement'")->fetch_array()['value'];
                 $replaced = str_replace("{src}", $src, $replacement);
-                $page = str_replace($value, $replaced, $page);
-            }
-        }
-    }
-
-    /**
-     * Replaces all not whitelisted images in BB-Code. Found images will be replaced with the value of the 'image_hider_replacement' setting.
-     * @param $page string The whole page to output
-     * @param $urls array The list of whitelisted URLs
-     * @param $cache array A cache of already replaced links. Used to add found URLs
-     */
-    static function clear_bb(&$page, &$urls, &$cache) {
-        global $db;
-
-        $reg = "/(\[\s*img\s*\])([a-zA-Z0-9\.\/\:\?\&\s\=\-\_\;\%]+)(\[\s*\/\s*img\s*\])/im";
-        preg_match_all($reg, $page, $matches);
-
-        foreach($matches[2] as $key => $value) {
-            $matched = false;
-            foreach($urls as $url) {
-                if(strpos($value, $url) !== FALSE) {
-                    $matched = true;
-                }
-            }
-
-            // check if local images are included
-            if(ImageHider::starts_with($value, "images/")) {
-                $matched = true;
-            }
-
-            if(!$matched) {
-                $cache[] = $value;
-
-                $replacement = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_replacement'")->fetch_array()['value'];
-                $replaced = str_replace("{src}", $matched[0][$key], $replacement);
                 $page = str_replace($value, $replaced, $page);
             }
         }
@@ -194,6 +160,7 @@ class ImageHider {
     static function clear_others(&$page, &$urls, &$cache) {
         global $db;
 
+        $replacement = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_replacement_image'")->fetch_array()['value'];
         $reg = "/[a-zA-Z0-9\.\/\?\&\:\;\_\-]*\/[a-zA-Z0-9\.\/\?\&\:\;\_\-]*(\.gif|\.jpg|\.png|\.jpeg|\.bmp|\.svg|\.tif)/im";
         preg_match_all($reg, $page, $matches);
 
@@ -209,10 +176,11 @@ class ImageHider {
             // check if local images are included
             if(ImageHider::starts_with($src, "images/")) {
                 $matched = true;
+            } else if(preg_match("/(http:)/im", $src)) {
+                $matched = false;
             }
 
             if(!$matched && !in_array($src, $cache)) {
-                $replacement = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_replacement_image'")->fetch_array()['value'];
                 $page = str_replace($value, $replacement, $page);
             }
         }
