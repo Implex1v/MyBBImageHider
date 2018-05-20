@@ -20,7 +20,7 @@ function image_hider_info() {
 function image_hider_install() {
     global $db;
 
-    $settingGroupId = $db->insert_query('settinggroups', [
+    $setting_gid = $db->insert_query('settinggroups', [
       'name'        => 'image_hider',
       'title'       => 'Image Hider',
       'description' => 'Hides images whose URL is not whitelisted.',
@@ -38,7 +38,7 @@ function image_hider_install() {
             'title'       => 'Semicolon sperated list of whitelisted URLs',
             'description' => 'A list of semicolon seperated URLs which are whitelisted for displaying the image. Please do not use any whitepasces. Remember to whitelist your own website.',
             'optionscode' => 'text',
-            'value'       => 'example.com;'
+            'value'       => $_SERVER['HTTP_HOST']
         ],[
             'name'        => 'image_hider_replacement',
             'title'       => 'The text the matched images will be replaced with',
@@ -50,12 +50,18 @@ function image_hider_install() {
             'title'       => 'The replacement image which will be displayed if linking is not possible.',
             'description' => 'Defines a URL to the replacement image if the linking of the image is not possible e.g. in CSS. Be sure to whitelist the url of the replacement image.',
             'optionscode' => 'text',
-            'value'       => 'images/404.gif'
+            'value'       => ''
+        ],[
+            'name'        => 'image_hider_exclude_files',
+            'title'       => 'A list of files which will be excluded.',
+            'description' => 'Defines a semicolon seperated list of files which will be ignored by this plugin.',
+            'optionscode' => 'text',
+            'value'       => ''
         ]];
 
     $i = 1;
     foreach ($settings as &$row) {
-        $row['gid']       = $settingGroupId;
+        $row['gid']       = $setting_gid;
         $row['disporder'] = $i++;
         $db->insert_query("settings", $row);
     }
@@ -78,8 +84,21 @@ function image_hider_uninstall() {
 function image_hider_is_installed() {
     global $db;
 
-    // manual check to avoid caching issues
     $query = $db->simple_select('settinggroups', 'gid', "name='image_hider'");
+    return (bool)$db->num_rows($query);
+}
+
+function image_hider_activate() {
+    global $db;
+
+    $query = $db->query("UPDATE mybb_settings SET value = 1 WHERE name = 'image_hider_activated'");
+    return (bool)$db->num_rows($query);
+}
+
+function image_hider_deactivate() {
+    global $db;
+
+    $query = $db->query("UPDATE mybb_settings SET value = 0 WHERE name = 'image_hider_activated'");
     return (bool)$db->num_rows($query);
 }
 
@@ -94,6 +113,11 @@ class ImageHider {
 
         $activated = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_activated'")->fetch_array()['value'];
         if($activated) {
+            if(ImageHider::check_if_excluded()) {
+                return;
+            }
+
+
             $urlDB = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_whitelist'")->fetch_array()['value'];
             $urls = explode(";", $urlDB);
             if($urls[sizeof($urls)-1] == "") {
@@ -135,7 +159,7 @@ class ImageHider {
             }
 
             // check if local images are included
-            if(ImageHider::starts_with($src, "images/")) {
+            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/")) {
                 $matched = true;
             } else if(preg_match("/(http:)/im", $src)) {
                 $matched = false;
@@ -174,7 +198,7 @@ class ImageHider {
             }
 
             // check if local images are included
-            if(ImageHider::starts_with($src, "images/")) {
+            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/")) {
                 $matched = true;
             } else if(preg_match("/(http:)/im", $src)) {
                 $matched = false;
@@ -234,6 +258,28 @@ class ImageHider {
         } else {
             return FALSE;
         }
+    }
+
+    /**
+     * Returns if the current file is excluded from checking.
+     * @return bool <code>TRUE</code> if the current file is excluded otherwise <code>false</code>
+     */
+    static function check_if_excluded() {
+        global $db;
+
+        $exclude = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_exclude_files'")->fetch_array()['value'];
+        $excludes = explode(";", $exclude);
+        if($excludes[sizeof($excludes)-1] == "") {
+            unset($excludes[sizeof($excludes)-1]);
+        }
+
+        foreach($excludes as $file) {
+            if(THIS_SCRIPT AND $file === THIS_SCRIPT) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
     }
 
     /**
