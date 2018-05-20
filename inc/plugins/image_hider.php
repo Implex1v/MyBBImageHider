@@ -11,7 +11,7 @@ function image_hider_info() {
         'website'        => 'https://github.com/Implex1v/MyBBImageHider',
         'author'         => 'Implex1v',
         'authorsite'     => 'https://implex1v.de/',
-        'version'        => '1.0.1',
+        'version'        => '1.0.2',
         'codename'       => 'image_hider',
         'compatibility'  => '18*',
     ];
@@ -36,7 +36,7 @@ function image_hider_install() {
         ],[
             'name'        => 'image_hider_whitelist',
             'title'       => 'Semicolon sperated list of whitelisted URLs',
-            'description' => 'A list of semicolon seperated URLs which are whitelisted for displaying the image. Please do not use any whitepasces. Remember to whitelist your own website.',
+            'description' => 'A list of semicolon separated URLs which are whitelisted for displaying the image. Please do not use any whitespaces. Remember to whitelist your own website.',
             'optionscode' => 'text',
             'value'       => $_SERVER['HTTP_HOST']
         ],[
@@ -54,7 +54,7 @@ function image_hider_install() {
         ],[
             'name'        => 'image_hider_exclude_files',
             'title'       => 'A list of files which will be excluded.',
-            'description' => 'Defines a semicolon seperated list of files which will be ignored by this plugin.',
+            'description' => 'Defines a semicolon separated list of files which will be ignored by this plugin.',
             'optionscode' => 'text',
             'value'       => ''
         ]];
