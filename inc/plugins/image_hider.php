@@ -8,10 +8,10 @@ function image_hider_info() {
     return [
         'name'           => 'Image Hider',
         'description'    => 'Hides images whose URL is not whitelisted',
-        'website'        => 'https://implex1v.de/',
+        'website'        => 'https://github.com/Implex1v/MyBBImageHider',
         'author'         => 'Implex1v',
         'authorsite'     => 'https://implex1v.de/',
-        'version'        => '1.0',
+        'version'        => '1.0.1',
         'codename'       => 'image_hider',
         'compatibility'  => '18*',
     ];
