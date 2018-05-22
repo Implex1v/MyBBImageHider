@@ -57,6 +57,12 @@ function image_hider_install() {
             'description' => 'Defines a semicolon separated list of files which will be ignored by this plugin.',
             'optionscode' => 'text',
             'value'       => ''
+        ],[
+            'name'        => 'image_hider_check_http',
+            'title'       => 'Block http image urls',
+            'description' => 'Indicates if images served over http will be hidden.',
+            'optionscode' => 'onoff',
+            'value'       => '1'
         ]];
 
     $i = 1;
@@ -161,7 +167,7 @@ class ImageHider {
             // check if local images are included
             if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/")) {
                 $matched = true;
-            } else if(preg_match("/(http:)/im", $src)) {
+            } else if(ImageHider::block_http($src)) {
                 $matched = false;
             }
 
@@ -200,7 +206,7 @@ class ImageHider {
             // check if local images are included
             if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/")) {
                 $matched = true;
-            } else if(preg_match("/(http:)/im", $src)) {
+            } else if(ImageHider::block_http($src)) {
                 $matched = false;
             }
 
@@ -280,6 +286,17 @@ class ImageHider {
         }
 
         return FALSE;
+    }
+
+    static function block_http($src) {
+        global $db;
+
+        $exclude = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_check_http'")->fetch_array()['value'];
+        if($exclude) {
+            return preg_match("/(http:)/im", $src) > 0;
+        } else {
+            return false;
+        }
     }
 
     /**
