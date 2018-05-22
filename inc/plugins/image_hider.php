@@ -11,7 +11,7 @@ function image_hider_info() {
         'website'        => 'https://github.com/Implex1v/MyBBImageHider',
         'author'         => 'Implex1v',
         'authorsite'     => 'https://implex1v.de/',
-        'version'        => '1.0.2',
+        'version'        => '1.0.3',
         'codename'       => 'image_hider',
         'compatibility'  => '18*',
     ];
@@ -97,14 +97,14 @@ function image_hider_is_installed() {
 function image_hider_activate() {
     global $db;
 
-    $query = $db->query("UPDATE mybb_settings SET value = 1 WHERE name = 'image_hider_activated'");
+    $query = $db->update_query("settings", ["value" => "1"], "name = 'image_hider_activated'");
     return (bool)$db->num_rows($query);
 }
 
 function image_hider_deactivate() {
     global $db;
 
-    $query = $db->query("UPDATE mybb_settings SET value = 0 WHERE name = 'image_hider_activated'");
+    $query = $db->update_query("settings", ["value" => "0"], "name = 'image_hider_activated'");
     return (bool)$db->num_rows($query);
 }
 
@@ -117,14 +117,14 @@ class ImageHider {
     static function clear_images(&$page) {
         global $db;
 
-        $activated = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_activated'")->fetch_array()['value'];
+        $activated = $db->fetch_array($db->simple_select("settings", "value", "name = 'image_hider_activated'"))['value'];
         if($activated) {
             if(ImageHider::check_if_excluded()) {
                 return;
             }
 
 
-            $urlDB = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_whitelist'")->fetch_array()['value'];
+            $urlDB = $db->fetch_array($db->simple_select("settings", "value", "name = 'image_hider_whitelist'"))['value'];
             $urls = explode(";", $urlDB);
             if($urls[sizeof($urls)-1] == "") {
                 unset($urls[sizeof($urls)-1]);
@@ -174,7 +174,7 @@ class ImageHider {
             if(!$matched) {
                 $cache[] = $src;
 
-                $replacement = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_replacement'")->fetch_array()['value'];
+                $replacement = $db->fetch_array($db->simple_select("settings", "value", "name = 'image_hider_replacement'"))['value'];
                 $replaced = str_replace("{src}", $src, $replacement);
                 $page = str_replace($value, $replaced, $page);
             }
@@ -190,7 +190,7 @@ class ImageHider {
     static function clear_others(&$page, &$urls, &$cache) {
         global $db;
 
-        $replacement = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_replacement_image'")->fetch_array()['value'];
+        $replacement = $db->fetch_array($db->simple_select("settings", "value", "name = 'image_hider_replacement_image'"))['value'];
         $reg = "/[a-zA-Z0-9\.\/\?\&\:\;\_\-]*\/[a-zA-Z0-9\.\/\?\&\:\;\_\-]*(\.gif|\.jpg|\.png|\.jpeg|\.bmp|\.svg|\.tif)/im";
         preg_match_all($reg, $page, $matches);
 
@@ -273,7 +273,7 @@ class ImageHider {
     static function check_if_excluded() {
         global $db;
 
-        $exclude = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_exclude_files'")->fetch_array()['value'];
+        $exclude = $db->fetch_array($db->simple_select("settings", "value", "name = 'image_hider_exclude_files'"))['value'];
         $excludes = explode(";", $exclude);
         if($excludes[sizeof($excludes)-1] == "") {
             unset($excludes[sizeof($excludes)-1]);
@@ -291,7 +291,7 @@ class ImageHider {
     static function block_http($src) {
         global $db;
 
-        $exclude = $db->query("SELECT value FROM mybb_settings WHERE name = 'image_hider_check_http'")->fetch_array()['value'];
+        $exclude = $db->fetch_array($db->simple_select("settings", "value", "name = 'image_hider_check_http'"))['value'];
         if($exclude) {
             return preg_match("/(http:)/im", $src) > 0;
         } else {
