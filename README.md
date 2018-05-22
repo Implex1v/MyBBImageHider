@@ -16,7 +16,7 @@ All featrues are listed in the enumeration below:
 5. Exclude pages from image hiding
 
 ## Installation
-Yuu can simply download this plugin [here](https://github.com/Implex1v/MyBBImageHider/releases/).
+You can simply download this plugin [here](https://github.com/Implex1v/MyBBImageHider/releases/).
 
 To install the plugin you simply need to upload the `image-hider.php` file to your webserver and put it into the `inc/plugins/` folder. You could also use the upload plugin function of the MyBB webinterface.
 
