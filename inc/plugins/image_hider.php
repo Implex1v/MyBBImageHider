@@ -11,7 +11,7 @@ function image_hider_info() {
         'website'        => 'https://github.com/Implex1v/MyBBImageHider',
         'author'         => 'Implex1v',
         'authorsite'     => 'https://implex1v.de/',
-        'version'        => '1.0.3',
+        'version'        => '1.0.4',
         'codename'       => 'image_hider',
         'compatibility'  => '18*',
     ];
