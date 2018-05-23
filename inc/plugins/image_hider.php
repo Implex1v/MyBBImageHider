@@ -163,7 +163,7 @@ class ImageHider {
             }
 
             // check if local images are included
-            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/")) {
+            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/") OR ImageHider::starts_with($src, "./")) {
                 $matched = true;
             } else if(ImageHider::block_http($src)) {
                 $matched = false;
@@ -202,7 +202,7 @@ class ImageHider {
             }
 
             // check if local images are included
-            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/")) {
+            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/") OR ImageHider::starts_with($src, "./")) {
                 $matched = true;
             } else if(ImageHider::block_http($src)) {
                 $matched = false;
