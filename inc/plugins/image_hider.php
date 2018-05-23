@@ -11,7 +11,7 @@ function image_hider_info() {
         'website'        => 'https://github.com/Implex1v/MyBBImageHider',
         'author'         => 'Implex1v',
         'authorsite'     => 'https://implex1v.de/',
-        'version'        => '1.0.4',
+        'version'        => '1.0.5',
         'codename'       => 'image_hider',
         'compatibility'  => '18*',
     ];
@@ -97,15 +97,13 @@ function image_hider_is_installed() {
 function image_hider_activate() {
     global $db;
 
-    $query = $db->update_query("settings", ["value" => "1"], "name = 'image_hider_activated'");
-    return (bool)$db->num_rows($query);
+    $db->update_query("settings", ["value" => "1"], "name = 'image_hider_activated'");
 }
 
 function image_hider_deactivate() {
     global $db;
 
-    $query = $db->update_query("settings", ["value" => "0"], "name = 'image_hider_activated'");
-    return (bool)$db->num_rows($query);
+    $db->update_query("settings", ["value" => "0"], "name = 'image_hider_activated'");
 }
 
 class ImageHider {
@@ -165,7 +163,7 @@ class ImageHider {
             }
 
             // check if local images are included
-            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/")) {
+            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/") OR ImageHider::starts_with($src, "./")) {
                 $matched = true;
             } else if(ImageHider::block_http($src)) {
                 $matched = false;
@@ -204,7 +202,7 @@ class ImageHider {
             }
 
             // check if local images are included
-            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/")) {
+            if(ImageHider::starts_with($src, "images/") OR ImageHider::starts_with($src, "/") OR ImageHider::starts_with($src, "./")) {
                 $matched = true;
             } else if(ImageHider::block_http($src)) {
                 $matched = false;
