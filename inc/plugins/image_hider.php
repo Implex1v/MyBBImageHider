@@ -228,13 +228,13 @@ class ImageHider {
             $equal = strpos($src, "=");
 
             $linkBegin = $equal;
-            for(; $linkBegin < sizeof($src); $linkBegin++) {
+            for(; $linkBegin < strlen($src); $linkBegin++) {
                 if(! preg_match("/\s/", substr($src, $equal, 1))) {
                     break;
                 }
             }
 
-            return substr($src, $linkBegin+1, sizeof($src)-2);
+            return substr($src, $linkBegin+1, strlen($src)-2);
         } else {
             return FALSE;
         }
@@ -255,7 +255,7 @@ class ImageHider {
             $firstQuote = strpos($src, $lastQuote);
 
             if($firstQuote) {
-                return substr($src, $firstQuote+1, sizeof($src)-2);
+                return substr($src, $firstQuote+1, strlen($src)-2);
             } else {
                 return FALSE;
             }
